@@ -26,22 +26,11 @@ impl Clone for ListNode {
 }
 impl Solution {
     pub fn merge_k_lists(lists: Vec<Option<Box<ListNode>>>) -> Option<Box<ListNode>> {
-        let mut skip = true;
-        let mut r = None;
-        let mut cur = None;
-        let mut pointers = lists.clone();
-        while skip {
-            // pointers.iter().enumerate()
-            for (i, li) in pointers.iter().enumerate() {
-                if li.is_some() {
-                    println!("{:?}", li);
-                    if r.is_none() {
-                        r = Some(Box::new(ListNode::new(li.clone().unwrap().val)));
-                        cur = r.clone();
-                    }
-                }
-            }
-        }
-        r
+        let mut curs = lists
+            .iter()
+            .map(|_o| Box::new(ListNode::new(0)))
+            .collect::<Vec<Box<ListNode>>>();
+        while !curs.iter().any(|c| c.as_mut().is_none()) {}
+        None
     }
 }
