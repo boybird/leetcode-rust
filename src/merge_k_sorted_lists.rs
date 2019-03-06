@@ -30,7 +30,7 @@ impl Solution {
             .iter()
             .map(|_o| Box::new(ListNode::new(0)))
             .collect::<Vec<Box<ListNode>>>();
-        while !curs.iter().any(|c| c.as_mut().is_none()) {}
+        // while !curs.iter().any(|c| c.as_mut().is_none()) {}
         None
     }
 }
