@@ -6,7 +6,6 @@ impl Solution {
             return "".to_owned();
         }
         if s.len() == 1 {
-            dbg!(&s);
             return s;
         }
         let (mut min_start, mut max_len) = (0, 1);
@@ -30,9 +29,6 @@ impl Solution {
                 max_len = new_len;
             }
         }
-        // println!("{} {}", min_start, max_len);
-        dbg!(min_start);
-        dbg!(max_len);
         return String::from(&s[min_start..(min_start + max_len)]);
     }
 }
