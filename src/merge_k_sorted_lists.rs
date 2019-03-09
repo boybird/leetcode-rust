@@ -26,7 +26,7 @@ impl Clone for ListNode {
 }
 impl Solution {
     pub fn merge_k_lists(lists: Vec<Option<Box<ListNode>>>) -> Option<Box<ListNode>> {
-        let mut curs = lists
+        let _curs = lists
             .iter()
             .map(|_o| Box::new(ListNode::new(0)))
             .collect::<Vec<Box<ListNode>>>();
