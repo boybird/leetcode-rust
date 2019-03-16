@@ -4,7 +4,7 @@ struct Solution {}
 
 impl Solution {
     pub fn find_median_sorted_arrays(nums1: Vec<i32>, nums2: Vec<i32>) -> f64 {
-        let (mut i, mut j, mut k) = (0, 0, 0);
+        let (mut i, mut j,  k) = (0, 0, 0);
         let n = nums1.len();
         let m = nums2.len();
 

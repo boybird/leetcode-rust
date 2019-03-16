@@ -1,4 +1,7 @@
 #![allow(dead_code)]
+#![allow(unused_variables)]
+#![allow(unused_assignments)]
+
 mod add_two_numbers;
 mod generate_parentheses;
 mod longest_palindromic_substring;
