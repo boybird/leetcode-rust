@@ -8,8 +8,6 @@ impl Solution {
         let n = nums1.len();
         let m = nums2.len();
 
-
-
         let mut num = Vec::with_capacity(n + m);
 
         while i < n && j < m {
