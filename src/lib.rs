@@ -9,3 +9,4 @@ mod longest_substring_without_repeating_characters;
 mod maximal_square;
 mod median_of_two_sorted_arrays;
 mod merge_k_sorted_lists;
+mod longest_common_prefix;
