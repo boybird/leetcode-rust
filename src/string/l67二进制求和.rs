@@ -7,43 +7,35 @@ struct Solution;
 // @lc code=start
 impl Solution {
     pub fn add_binary(a: String, b: String) -> String {
-        let mut step = false;
-
         let mut pa = a.len();
         let mut pb = b.len();
         let mut c = Vec::with_capacity(std::cmp::max(pa, pb) + 1);
         let mut A;
         let mut B;
+        let z = '0' as usize;
+        let mut step = 0;
+        let mut bit;
         loop {
             if pa == 0 && pb == 0 {
                 break;
             }
             A = if pa == 0 {
-                '0'
+                0
             } else {
                 pa = pa - 1;
-                a.chars().nth(pa).unwrap()
+                a.chars().nth(pa).unwrap() as usize - z
             };
             B = if pb == 0 {
-                '0'
+                0
             } else {
                 pb = pb - 1;
-                b.chars().nth(pb).unwrap()
+                b.chars().nth(pb).unwrap() as usize - z
             };
-            match (A, B, step) {
-                ('0', '0', false) => c.push('0'),
-                ('0', '0', true) | ('0', '1', false) | ('1', '0', false) => {
-                    step = false;
-                    c.push('1')
-                }
-                ('1', '1', false) | ('1', '0', true) | ('0', '1', true) => {
-                    step = true;
-                    c.push('0')
-                }
-                _ => c.push('1'),
-            }
+            bit = A + B + step;
+            c.push(if bit % 2 == 0 { '0' } else { '1' });
+            step = if bit >= 2 { 1 } else { 0 };
         }
-        if step {
+        if step > 0 {
             c.push('1');
         }
 
