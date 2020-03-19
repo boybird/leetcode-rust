@@ -7,6 +7,7 @@ mod binary_indexed_tree;
 mod binary_search;
 mod design;
 mod geometry;
+mod graph;
 mod greedy;
 mod heap;
 mod line_sweep;
