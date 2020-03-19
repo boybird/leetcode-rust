@@ -57,7 +57,6 @@ impl Solution {
             }
         }
         let m = dist.iter().skip(1).max().unwrap();
-        //println!("{:?}", dist);
         if *m == usize::MAX {
             -1
         } else {
