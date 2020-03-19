@@ -94,6 +94,28 @@ mod tests {
     fn test_it() {
         use super::*;
 
+        // This is the directed graph we're going to use.
+        // The node numbers correspond to the different states,
+        // and the edge weights symbolize the cost of moving
+        // from one node to another.
+        // Note that the edges are one-way.
+        //
+        //                  7
+        //          +-----------------+
+        //          |                 |
+        //          v   1        2    |  2
+        //          0 -----> 1 -----> 3 ---> 4
+        //          |        ^        ^      ^
+        //          |        | 1      |      |
+        //          |        |        | 3    | 1
+        //          +------> 2 -------+      |
+        //           10      |               |
+        //                   +---------------+
+        //
+        // The graph is represented as an adjacency list where each index,
+        // corresponding to a node value, has a list of outgoing edges.
+        // Chosen for its efficiency.
+
         let graph = vec![
             // Node 0
             vec![Edge { node: 2, cost: 10 }, Edge { node: 1, cost: 1 }],
