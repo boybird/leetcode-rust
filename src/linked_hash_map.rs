@@ -172,25 +172,7 @@ impl<K: Hash + Eq, V, S: BuildHasher> LinkedHashMap<K, V, S> {
         self.clear_free_list();
     }
 
-    /// Gets the given key's corresponding entry in the map for in-place manipulation.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use linked_hash_map::LinkedHashMap;
-    ///
-    /// let mut letters = LinkedHashMap::new();
-    ///
-    /// for ch in "a short treatise on fungi".chars() {
-    ///     let counter = letters.entry(ch).or_insert(0);
-    ///     *counter += 1;
-    /// }
-    ///
-    /// assert_eq!(letters[&'s'], 2);
-    /// assert_eq!(letters[&'t'], 3);
-    /// assert_eq!(letters[&'u'], 1);
-    /// assert_eq!(letters.get(&'y'), None);
-    /// ```
+
     pub fn entry(&mut self, k: K) -> Entry<K, V, S> {
         let self_ptr: *mut Self = self;
 
@@ -208,28 +190,7 @@ impl<K: Hash + Eq, V, S: BuildHasher> LinkedHashMap<K, V, S> {
         })
     }
 
-    /// Returns an iterator visiting all entries in insertion order.
-    /// Iterator element type is `OccupiedEntry<K, V, S>`. Allows for removal
-    /// as well as replacing the entry.
-    ///
-    /// # Examples
-    /// ```
-    /// use linked_hash_map::LinkedHashMap;
-    ///
-    /// let mut map = LinkedHashMap::new();
-    /// map.insert("a", 10);
-    /// map.insert("c", 30);
-    /// map.insert("b", 20);
-    ///
-    /// {
-    ///     let mut iter = map.entries();
-    ///     let mut entry = iter.next().unwrap();
-    ///     assert_eq!(&"a", entry.key());
-    ///     *entry.get_mut() = 17;
-    /// }
-    ///
-    /// assert_eq!(&17, map.get(&"a").unwrap());
-    /// ```
+
     pub fn entries(&mut self) -> Entries<K, V, S> {
         let head = if ! self.head.is_null() {
             unsafe { (*self.head).prev }
@@ -244,20 +205,7 @@ impl<K: Hash + Eq, V, S: BuildHasher> LinkedHashMap<K, V, S> {
         }
     }
 
-    /// Inserts a key-value pair into the map. If the key already existed, the old value is
-    /// returned.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use linked_hash_map::LinkedHashMap;
-    /// let mut map = LinkedHashMap::new();
-    ///
-    /// map.insert(1, "a");
-    /// map.insert(2, "b");
-    /// assert_eq!(map[&1], "a");
-    /// assert_eq!(map[&2], "b");
-    /// ```
+
     pub fn insert(&mut self, k: K, v: V) -> Option<V> {
         self.ensure_guard_node();
 
@@ -301,63 +249,16 @@ impl<K: Hash + Eq, V, S: BuildHasher> LinkedHashMap<K, V, S> {
         self.map.contains_key(Qey::from_ref(k))
     }
 
-    /// Returns the value corresponding to the key in the map.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use linked_hash_map::LinkedHashMap;
-    /// let mut map = LinkedHashMap::new();
-    ///
-    /// map.insert(1, "a");
-    /// map.insert(2, "b");
-    /// map.insert(2, "c");
-    /// map.insert(3, "d");
-    ///
-    /// assert_eq!(map.get(&1), Some(&"a"));
-    /// assert_eq!(map.get(&2), Some(&"c"));
-    /// ```
+
     pub fn get<Q: ?Sized>(&self, k: &Q) -> Option<&V> where K: Borrow<Q>, Q: Eq + Hash {
         self.map.get(Qey::from_ref(k)).map(|e| unsafe { &(**e).value })
     }
 
-    /// Returns the mutable reference corresponding to the key in the map.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use linked_hash_map::LinkedHashMap;
-    /// let mut map = LinkedHashMap::new();
-    ///
-    /// map.insert(1, "a");
-    /// map.insert(2, "b");
-    ///
-    /// *map.get_mut(&1).unwrap() = "c";
-    /// assert_eq!(map.get(&1), Some(&"c"));
-    /// ```
+
     pub fn get_mut<Q: ?Sized>(&mut self, k: &Q) -> Option<&mut V> where K: Borrow<Q>, Q: Eq + Hash {
         self.map.get(Qey::from_ref(k)).map(|e| unsafe { &mut (**e).value })
     }
 
-    /// Returns the value corresponding to the key in the map.
-    ///
-    /// If value is found, it is moved to the end of the list.
-    /// This operation can be used in implemenation of LRU cache.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use linked_hash_map::LinkedHashMap;
-    /// let mut map = LinkedHashMap::new();
-    ///
-    /// map.insert(1, "a");
-    /// map.insert(2, "b");
-    /// map.insert(3, "d");
-    ///
-    /// assert_eq!(map.get_refresh(&2), Some(&mut "b"));
-    ///
-    /// assert_eq!((&2, &"b"), map.iter().rev().next().unwrap());
-    /// ```
     pub fn get_refresh<Q: ?Sized>(&mut self, k: &Q) -> Option<&mut V> where K: Borrow<Q>, Q: Eq + Hash {
         let (value, node_ptr_opt) = match self.map.get(Qey::from_ref(k)) {
             None => (None, None),
@@ -372,21 +273,6 @@ impl<K: Hash + Eq, V, S: BuildHasher> LinkedHashMap<K, V, S> {
         value
     }
 
-    /// Removes and returns the value corresponding to the key from the map.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use linked_hash_map::LinkedHashMap;
-    /// let mut map = LinkedHashMap::new();
-    ///
-    /// map.insert(2, "a");
-    ///
-    /// assert_eq!(map.remove(&1), None);
-    /// assert_eq!(map.remove(&2), Some("a"));
-    /// assert_eq!(map.remove(&2), None);
-    /// assert_eq!(map.len(), 0);
-    /// ```
     pub fn remove<Q: ?Sized>(&mut self, k: &Q) -> Option<V> where K: Borrow<Q>, Q: Eq + Hash {
         let removed = self.map.remove(Qey::from_ref(k));
         removed.map(|node| {
@@ -402,34 +288,11 @@ impl<K: Hash + Eq, V, S: BuildHasher> LinkedHashMap<K, V, S> {
         })
     }
 
-    /// Returns the maximum number of key-value pairs the map can hold without reallocating.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use linked_hash_map::LinkedHashMap;
-    /// let mut map: LinkedHashMap<i32, &str> = LinkedHashMap::new();
-    /// let capacity = map.capacity();
-    /// ```
     pub fn capacity(&self) -> usize {
         self.map.capacity()
     }
 
-    /// Removes the first entry.
-    ///
-    /// Can be used in implementation of LRU cache.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use linked_hash_map::LinkedHashMap;
-    /// let mut map = LinkedHashMap::new();
-    /// map.insert(1, 10);
-    /// map.insert(2, 20);
-    /// map.pop_front();
-    /// assert_eq!(map.get(&1), None);
-    /// assert_eq!(map.get(&2), Some(&20));
-    /// ```
+
     #[inline]
     pub fn pop_front(&mut self) -> Option<(K, V)> {
         if self.is_empty() {
@@ -445,17 +308,7 @@ impl<K: Hash + Eq, V, S: BuildHasher> LinkedHashMap<K, V, S> {
             })
     }
 
-    /// Gets the first entry.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use linked_hash_map::LinkedHashMap;
-    /// let mut map = LinkedHashMap::new();
-    /// map.insert(1, 10);
-    /// map.insert(2, 20);
-    /// assert_eq!(map.front(), Some((&1, &10)));
-    /// ```
+
     #[inline]
     pub fn front(&self) -> Option<(&K, &V)> {
         if self.is_empty() {
@@ -467,19 +320,7 @@ impl<K: Hash + Eq, V, S: BuildHasher> LinkedHashMap<K, V, S> {
             .map(|e| unsafe { (&(**e).key, &(**e).value) })
     }
 
-    /// Removes the last entry.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use linked_hash_map::LinkedHashMap;
-    /// let mut map = LinkedHashMap::new();
-    /// map.insert(1, 10);
-    /// map.insert(2, 20);
-    /// map.pop_back();
-    /// assert_eq!(map.get(&1), Some(&10));
-    /// assert_eq!(map.get(&2), None);
-    /// ```
+
     #[inline]
     pub fn pop_back(&mut self) -> Option<(K, V)> {
         if self.is_empty() {
@@ -495,17 +336,6 @@ impl<K: Hash + Eq, V, S: BuildHasher> LinkedHashMap<K, V, S> {
             })
     }
 
-    /// Gets the last entry.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use linked_hash_map::LinkedHashMap;
-    /// let mut map = LinkedHashMap::new();
-    /// map.insert(1, 10);
-    /// map.insert(2, 20);
-    /// assert_eq!(map.back(), Some((&2, &20)));
-    /// ```
     #[inline]
     pub fn back(&mut self) -> Option<(&K, &V)> {
         if self.is_empty() {
@@ -541,24 +371,6 @@ impl<K: Hash + Eq, V, S: BuildHasher> LinkedHashMap<K, V, S> {
         }
     }
 
-    /// Returns a double-ended iterator visiting all key-value pairs in order of insertion.
-    /// Iterator element type is `(&'a K, &'a V)`
-    ///
-    /// # Examples
-    /// ```
-    /// use linked_hash_map::LinkedHashMap;
-    ///
-    /// let mut map = LinkedHashMap::new();
-    /// map.insert("a", 10);
-    /// map.insert("c", 30);
-    /// map.insert("b", 20);
-    ///
-    /// let mut iter = map.iter();
-    /// assert_eq!((&"a", &10), iter.next().unwrap());
-    /// assert_eq!((&"c", &30), iter.next().unwrap());
-    /// assert_eq!((&"b", &20), iter.next().unwrap());
-    /// assert_eq!(None, iter.next());
-    /// ```
     pub fn iter(&self) -> Iter<K, V> {
         let head = if self.head.is_null() {
             ptr::null_mut()
@@ -573,26 +385,6 @@ impl<K: Hash + Eq, V, S: BuildHasher> LinkedHashMap<K, V, S> {
         }
     }
 
-    /// Returns a double-ended iterator visiting all key-value pairs in order of insertion.
-    /// Iterator element type is `(&'a K, &'a mut V)`
-    /// # Examples
-    /// ```
-    /// use linked_hash_map::LinkedHashMap;
-    ///
-    /// let mut map = LinkedHashMap::new();
-    /// map.insert("a", 10);
-    /// map.insert("c", 30);
-    /// map.insert("b", 20);
-    ///
-    /// {
-    ///     let mut iter = map.iter_mut();
-    ///     let mut entry = iter.next().unwrap();
-    ///     assert_eq!(&"a", entry.0);
-    ///     *entry.1 = 17;
-    /// }
-    ///
-    /// assert_eq!(&17, map.get(&"a").unwrap());
-    /// ```
     pub fn iter_mut(&mut self) -> IterMut<K, V> {
         let head = if self.head.is_null() {
             ptr::null_mut()
@@ -607,44 +399,10 @@ impl<K: Hash + Eq, V, S: BuildHasher> LinkedHashMap<K, V, S> {
         }
     }
 
-    /// Returns a double-ended iterator visiting all key in order of insertion.
-    ///
-    /// # Examples
-    /// ```
-    /// use linked_hash_map::LinkedHashMap;
-    ///
-    /// let mut map = LinkedHashMap::new();
-    /// map.insert('a', 10);
-    /// map.insert('c', 30);
-    /// map.insert('b', 20);
-    ///
-    /// let mut keys = map.keys();
-    /// assert_eq!(&'a', keys.next().unwrap());
-    /// assert_eq!(&'c', keys.next().unwrap());
-    /// assert_eq!(&'b', keys.next().unwrap());
-    /// assert_eq!(None, keys.next());
-    /// ```
     pub fn keys(&self) -> Keys<K, V> {
         Keys { inner: self.iter() }
     }
 
-    /// Returns a double-ended iterator visiting all values in order of insertion.
-    ///
-    /// # Examples
-    /// ```
-    /// use linked_hash_map::LinkedHashMap;
-    ///
-    /// let mut map = LinkedHashMap::new();
-    /// map.insert('a', 10);
-    /// map.insert('c', 30);
-    /// map.insert('b', 20);
-    ///
-    /// let mut values = map.values();
-    /// assert_eq!(&10, values.next().unwrap());
-    /// assert_eq!(&30, values.next().unwrap());
-    /// assert_eq!(&20, values.next().unwrap());
-    /// assert_eq!(None, values.next());
-    /// ```
     pub fn values(&self) -> Values<K, V> {
         Values { inner: self.iter() }
     }
@@ -1126,17 +884,6 @@ pub struct VacantEntry<'a, K: 'a, V: 'a, S: 'a = hash_map::RandomState> {
 }
 
 impl<'a, K: Hash + Eq, V, S: BuildHasher> Entry<'a, K, V, S> {
-    /// Returns the entry key
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use linked_hash_map::LinkedHashMap;
-    ///
-    /// let mut map = LinkedHashMap::<String, u32>::new();
-    ///
-    /// assert_eq!("hello", map.entry("hello".to_string()).key());
-    /// ```
     pub fn key(&self) -> &K {
         match *self {
             Entry::Occupied(ref e) => e.key(),
@@ -1164,18 +911,7 @@ impl<'a, K: Hash + Eq, V, S: BuildHasher> Entry<'a, K, V, S> {
 }
 
 impl<'a, K: Hash + Eq, V, S: BuildHasher> OccupiedEntry<'a, K, V, S> {
-    /// Gets a reference to the entry key
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use linked_hash_map::LinkedHashMap;
-    ///
-    /// let mut map = LinkedHashMap::new();
-    ///
-    /// map.insert("foo".to_string(), 1);
-    /// assert_eq!("foo", map.entry("foo".to_string()).key());
-    /// ```
+
     pub fn key(&self) -> &K {
         unsafe { &(*self.entry).key }
     }
@@ -1219,17 +955,7 @@ impl<'a, K: Hash + Eq, V, S: BuildHasher> OccupiedEntry<'a, K, V, S> {
 }
 
 impl<'a, K: 'a + Hash + Eq, V: 'a, S: BuildHasher> VacantEntry<'a, K, V, S> {
-    /// Gets a reference to the entry key
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use linked_hash_map::LinkedHashMap;
-    ///
-    /// let mut map = LinkedHashMap::<String, u32>::new();
-    ///
-    /// assert_eq!("foo", map.entry("foo".to_string()).key());
-    /// ```
+
     pub fn key(&self) -> &K {
         &self.key
     }
